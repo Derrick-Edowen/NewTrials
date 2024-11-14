@@ -79,12 +79,16 @@ const FormBuilder = () => {
       alert('Please enter a form name');
       return;
     }
-
+  
+    // Create form data with formFields and their types
     const formData = {
       name: formName,
-      formFields,
+      formFields: formFields.map((field) => ({
+        ...field, // include existing field data
+        type: field.type, // ensure the type is passed along
+      })),
     };
-
+  
     try {
       const response = await axios.post('/api/forms/save', formData);
       alert('Form saved successfully!');
@@ -94,6 +98,7 @@ const FormBuilder = () => {
       console.error('Error:', error);
     }
   };
+  
 
   const handlePullUpForm = async () => {
     if (!formId) {
@@ -239,7 +244,7 @@ const FormBuilder = () => {
             <label htmlFor={field.id}>
               <strong>{field.label}</strong>
             </label>
-            {field.type === 'text' && (
+            {field.type === '1' && (
               <input
                 type="text"
                 id={field.id}
@@ -249,7 +254,7 @@ const FormBuilder = () => {
                 style={{ width: '100%', padding: '8px' }}
               />
             )}
-            {field.type === 'number' && (
+            {field.type === '2' && (
               <input
                 type="number"
                 id={field.id}
@@ -259,7 +264,7 @@ const FormBuilder = () => {
                 style={{ width: '100%', padding: '8px' }}
               />
             )}
-            {field.type === 'checkbox' && (
+            {field.type === '3' && (
               <input
                 type="checkbox"
                 id={field.id}

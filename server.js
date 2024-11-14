@@ -81,6 +81,7 @@ app.get('/api/forms/:id', (req, res) => {
 app.post('/api/forms/save', (req, res) => {
   const { name, formFields } = req.body;
 
+  // Validate input
   if (!name || !Array.isArray(formFields) || formFields.length === 0) {
     return res.status(400).json({ message: 'Form name and form fields are required' });
   }
@@ -99,10 +100,10 @@ app.post('/api/forms/save', (req, res) => {
     const fieldInserts = formFields.map((field, index) => [
       formId, 
       field.label || null, 
-      field.type || null, 
-      JSON.stringify(field.options || null), 
+      field.type || null,  // Ensure type is included for each field
+      JSON.stringify(field.options || null),  // Store options as a JSON string
       index,  // Position in the form
-      field.required || false
+      field.required || false  // Handle 'required' property
     ]);
 
     const fieldQuery = `
@@ -110,16 +111,19 @@ app.post('/api/forms/save', (req, res) => {
       VALUES ?
     `;
 
-    // Step 3: Insert each field individually or in bulk (as preferred)
-    connection.query(fieldQuery, [fieldInserts], (fieldErr) => {  // Use connection.query instead of db.batch
+    // Step 3: Insert fields in bulk
+    connection.query(fieldQuery, [fieldInserts], (fieldErr) => {  // Use connection.query for bulk insert
       if (fieldErr) {
         return res.status(500).json({ message: 'Error saving fields to the database.' });
       }
 
+      // Respond with the form data, including the form ID and fields
       res.status(201).json({ id: formId, name, formFields });
     });
   });
 });
+
+
 
 
 app.use(express.static(path.join(__dirname, 'build')));
